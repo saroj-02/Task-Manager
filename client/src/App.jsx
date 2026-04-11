@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, Trash2, CheckCircle, Circle, Loader2, AlertCircle, Filter, Edit2, X, Check, User, AlignLeft, Calendar } from 'lucide-react';
 
-const API_URL = 'http://localhost:5000/tasks';
+const API_URL = '/api/tasks';
 
 function App() {
   const [tasks, setTasks] = useState([]);
@@ -317,4 +317,3 @@ function App() {
 
 
 export default App;
-
