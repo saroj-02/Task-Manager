@@ -40,7 +40,7 @@ cd client
 npm install
 npm run dev
 ```
-The application will be available at https://task-manager-2k26.vercel.app/(https://task-manager-2k26.vercel.app/).
+The application will be available at https://task-manager-2k26.vercel.app/.
 
 ## Assumptions & Trade-offs
 
