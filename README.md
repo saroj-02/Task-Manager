@@ -32,7 +32,6 @@ cd server
 npm install
 npm start
 ```
-The server will run on [http://localhost:5000](http://localhost:5000).
 
 ### 2. Frontend Setup
 
@@ -41,7 +40,7 @@ cd client
 npm install
 npm run dev
 ```
-The application will be available at [http://localhost:5173](http://localhost:5173).
+The application will be available at https://task-manager-2k26.vercel.app/(https://task-manager-2k26.vercel.app/).
 
 ## Assumptions & Trade-offs
 
