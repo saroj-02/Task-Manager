@@ -9,20 +9,28 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// GET /tasks - Return all tasks
-app.get('/tasks', async (req, res) => {
+// Health check route
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
+
+const router = express.Router();
+
+// GET /api/tasks - Return all tasks
+router.get('/tasks', async (req, res) => {
   try {
     const tasks = await readTasks();
     res.json(tasks);
   } catch (error) {
+    console.error('Fetch error:', error);
     res.status(500).json({ error: 'Failed to fetch tasks' });
   }
 });
 
-// POST /tasks - Create a new task
-app.post('/tasks', async (req, res) => {
+// POST /api/tasks - Create a new task
+router.post('/tasks', async (req, res) => {
   try {
-    const { title, author, description } = req.body;
+    const { title, author, description, completed } = req.body;
     if (!title || typeof title !== 'string' || title.trim() === '') {
       return res.status(400).json({ error: 'Title is required' });
     }
@@ -33,7 +41,7 @@ app.post('/tasks', async (req, res) => {
       title: title.trim(),
       author: (author && typeof author === 'string') ? author.trim() : 'Anonymous',
       description: (description && typeof description === 'string') ? description.trim() : '',
-      completed: !!req.body.completed,
+      completed: !!completed,
       createdAt: new Date().toISOString(),
     };
 
@@ -41,13 +49,14 @@ app.post('/tasks', async (req, res) => {
     await writeTasks(tasks);
     res.status(201).json(newTask);
   } catch (error) {
+    console.error('Create error:', error);
     res.status(500).json({ error: 'Failed to create task' });
   }
 });
 
 
-// PATCH /tasks/:id - Update a task status or title
-app.patch('/tasks/:id', async (req, res) => {
+// PATCH /api/tasks/:id - Update a task status or title
+router.patch('/tasks/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { title, completed, author, description } = req.body;
@@ -68,12 +77,13 @@ app.patch('/tasks/:id', async (req, res) => {
     await writeTasks(tasks);
     res.json(tasks[taskIndex]);
   } catch (error) {
+    console.error('Update error:', error);
     res.status(500).json({ error: 'Failed to update task' });
   }
 });
 
-// DELETE /tasks/:id - Delete a task
-app.delete('/tasks/:id', async (req, res) => {
+// DELETE /api/tasks/:id - Delete a task
+router.delete('/tasks/:id', async (req, res) => {
   try {
     const { id } = req.params;
     let tasks = await readTasks();
@@ -87,9 +97,13 @@ app.delete('/tasks/:id', async (req, res) => {
     await writeTasks(tasks);
     res.status(204).send();
   } catch (error) {
+    console.error('Delete error:', error);
     res.status(500).json({ error: 'Failed to delete task' });
   }
 });
+
+// Use the router with /api prefix
+app.use('/api', router);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

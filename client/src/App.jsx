@@ -20,7 +20,10 @@ function App() {
     try {
       setLoading(true);
       const response = await fetch(API_URL);
-      if (!response.ok) throw new Error('Failed to fetch tasks');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to fetch tasks');
+      }
       const data = await response.json();
       setTasks(data);
       setError(null);
@@ -50,13 +53,17 @@ function App() {
           completed: addTaskAsCompleted
         }),
       });
-      if (!response.ok) throw new Error('Failed to add task');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to add task');
+      }
       const newTask = await response.json();
       setTasks([newTask, ...tasks]);
       setNewTaskTitle('');
       setNewTaskAuthor('');
       setNewTaskDescription('');
       setAddTaskAsCompleted(false);
+      setError(null);
     } catch (err) {
       setError(err.message);
     }
@@ -69,9 +76,13 @@ function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ completed: !completed }),
       });
-      if (!response.ok) throw new Error('Failed to update task');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to update task');
+      }
       const updatedTask = await response.json();
       setTasks(tasks.map(t => t.id === id ? updatedTask : t));
+      setError(null);
     } catch (err) {
       setError(err.message);
     }
@@ -80,8 +91,12 @@ function App() {
   const deleteTask = async (id) => {
     try {
       const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-      if (!response.ok) throw new Error('Failed to delete task');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to delete task');
+      }
       setTasks(tasks.filter(t => t.id !== id));
+      setError(null);
     } catch (err) {
       setError(err.message);
     }
@@ -107,10 +122,14 @@ function App() {
         }),
       });
 
-      if (!response.ok) throw new Error('Failed to update task');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to update task');
+      }
       const updatedTask = await response.json();
       setTasks(tasks.map(t => t.id === id ? updatedTask : t));
       setEditingId(null);
+      setError(null);
     } catch (err) {
       setError(err.message);
     }
