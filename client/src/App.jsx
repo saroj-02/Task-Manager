@@ -15,10 +15,22 @@ function App() {
   const [editingTitle, setEditingTitle] = useState('');
   const [editingAuthor, setEditingAuthor] = useState('');
   const [editingDescription, setEditingDescription] = useState('');
+  const [backendStatus, setBackendStatus] = useState('checking'); // 'checking', 'online', 'offline'
+
+  const checkBackend = async () => {
+    try {
+      const resp = await fetch('/api/health');
+      if (resp.ok) setBackendStatus('online');
+      else setBackendStatus('offline');
+    } catch {
+      setBackendStatus('offline');
+    }
+  };
 
   const fetchTasks = async () => {
     try {
       setLoading(true);
+      await checkBackend();
       const response = await fetch(API_URL);
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -27,8 +39,14 @@ function App() {
       const data = await response.json();
       setTasks(data);
       setError(null);
+      setBackendStatus('online');
     } catch (err) {
-      setError(err.message);
+      if (err.message === 'Failed to fetch' || backendStatus === 'offline') {
+        setError('Connection failed. Make sure your server is running on port 5000 (npm run dev from root).');
+        setBackendStatus('offline');
+      } else {
+        setError(err.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -246,7 +264,13 @@ function App() {
 
   return (
     <div className="container">
-      <h1>Task Manager</h1>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
+        <h1 style={{ margin: 0 }}>Task Manager</h1>
+        <div className={`status-badge ${backendStatus}`}>
+          <div className="status-dot"></div>
+          {backendStatus === 'online' ? 'Server Connected' : backendStatus === 'checking' ? 'Checking...' : 'Server Offline'}
+        </div>
+      </div>
 
       <div className="card">
         {error && (
