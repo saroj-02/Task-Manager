@@ -110,7 +110,7 @@ app.use('/api', router);
 app.use(express.static(path.join(__dirname, '../client/dist')));
 
 // Catch-all route to serve the React app for any unhandled paths (e.g. client-side routing)
-app.get('*', (req, res) => {
+app.get('/*splat', (req, res) => {
   res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 
